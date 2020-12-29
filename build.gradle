@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id "io.qameta.allure" version "2.8.1"
+    id "com.adarshr.test-logger" version "2.0.0"
+}
+
+group 'ru.mail'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext{
+    aspectjweaver='1.9.6'
+    junitVersion='5.7.0'
+    selenideVersion='5.16.2'
+    ownerVersion='1.0.12'
+    allureVersion='2.13.8'
+}
+
+dependencies {
+    implementation "org.aspectj:aspectjweaver:${aspectjweaver}"
+    implementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    implementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    implementation "com.codeborne:selenide:${selenideVersion}"
+    implementation "org.aeonbits.owner:owner:${ownerVersion}"
+    implementation "io.qameta.allure:allure-selenide:${allureVersion}"
+    implementation "io.qameta.allure:allure-junit-platform:${allureVersion}"
+    implementation 'org.assertj:assertj-core:3.17.2'
+}
+
+[compileJava, compileTestJava]*.options*.compilerArgs = ['-parameters']
+
+allure {
+    autoconfigure = true
+    aspectjweaver = true
+    version = "${allureVersion}"
+}
+
+testlogger {
+    theme 'mocha'
+    showPassed true
+    showSkipped true
+    showFailed true
+    showFullStackTraces true
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+    systemProperties = System.getProperties()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+task testMail(type: Test) {
+    useJUnitPlatform() {
+        includeTags 'checkMail'
+    }
+}
